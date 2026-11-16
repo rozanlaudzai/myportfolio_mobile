@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:myportfolio_mobile/main.dart';
-
 class ItemHomePage {
   final String name;
   final IconData icon;
+  final Color color;
 
-  ItemHomePage(this.name, this.icon);
+  ItemHomePage(this.name, this.icon, this.color);
 }
 
 class ItemCard extends StatelessWidget {
@@ -18,19 +17,26 @@ class ItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       // menggunakan warna sekunder dari skema tema aplikasi
-      color: Theme.of(context).colorScheme.secondary,
+      color: item.color,
       borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
+        overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
+          if (states.contains(WidgetState.pressed)) {
+            return Colors.black.withValues(alpha: 0.3);
+          }
+          return null;
+        }),
         // aksi ketika kartu ditekan oleh pengguna
         onTap: () {
           // menampilkan SnackBar dengan pesan interaktif
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              SnackBar(content: Text('Kamu telah menekan tombol ${item.name}!'))
+              SnackBar(content: Text('You pressed button ${item.name}!'))
             );
         },
-        child: Container(
+        child: Padding(
           padding: const EdgeInsets.all(8),
           child: Center(
             child: Column(
@@ -56,6 +62,38 @@ class ItemCard extends StatelessWidget {
   }
 }
 
+class InfoCard extends StatelessWidget {
+  // kartu informasi yang menampilkan judul (title) dan isi (content)
+  final String title;
+  final String content;
+
+  const InfoCard({super.key, required this.title, required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      // memberikan efek bayangan kartu elevasi 2 unit
+      elevation: 2.0,
+      child: Container(
+        // menyesuaikan lebar kartu dengan proporsi layar (dibagi 3.5)
+        width: MediaQuery.of(context).size.width / 3.5,
+        padding: const EdgeInsets.all(16.0),
+        // menyusun teks title dan content secara vertikal
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold)
+            ),
+            const SizedBox(height: 8.0),
+            Text(content)
+          ]
+        )
+      )
+    );
+  }
+}
+
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
 
@@ -64,9 +102,11 @@ class MyHomePage extends StatelessWidget {
   final String courseClass = 'PBP B';
 
   final List<ItemHomePage> items = [
-    ItemHomePage('Lihat Projek', Icons.folder),
-    ItemHomePage('Tambah Projek', Icons.add_circle),
-    ItemHomePage('Logout', Icons.logout)
+    ItemHomePage('Show Experience', Icons.folder, Colors.blue),
+    ItemHomePage('Add an Experience', Icons.add_circle, Colors.green),
+    ItemHomePage('Show Awards', Icons.folder, Colors.purple),
+    ItemHomePage('Add an Award', Icons.add_circle, Colors.brown),
+    ItemHomePage('Logout', Icons.logout, Colors.red)
   ];
 
   @override
