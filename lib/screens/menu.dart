@@ -1,66 +1,6 @@
-import 'package:flutter/material.dart';
-
-class ItemHomePage {
-  final String name;
-  final IconData icon;
-  final Color color;
-
-  ItemHomePage(this.name, this.icon, this.color);
-}
-
-class ItemCard extends StatelessWidget {
-  final ItemHomePage item;
-
-  const ItemCard(this.item, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      // menggunakan warna sekunder dari skema tema aplikasi
-      color: item.color,
-      borderRadius: BorderRadius.circular(12),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
-          if (states.contains(WidgetState.pressed)) {
-            return Colors.black.withValues(alpha: 0.3);
-          }
-          return null;
-        }),
-        // aksi ketika kartu ditekan oleh pengguna
-        onTap: () {
-          // menampilkan SnackBar dengan pesan interaktif
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(content: Text('You pressed button ${item.name}!'))
-            );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  item.icon,
-                  color: Colors.white,
-                  size: 30.0
-                ),
-                const Padding(padding: EdgeInsets.all(3)),
-                Text(
-                  item.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white)
-                )
-              ],
-            )
-          )
-        )
-      )
-    );
-  }
-}
+import 'package:material_ui/material_ui.dart';
+import 'package:myportfolio_mobile/widgets/left_drawer.dart';
+import 'package:myportfolio_mobile/widgets/project_card.dart';
 
 class InfoCard extends StatelessWidget {
   // kartu informasi yang menampilkan judul (title) dan isi (content)
@@ -102,6 +42,8 @@ class MyHomePage extends StatelessWidget {
   final String courseClass = 'PBP B';
 
   final List<ItemHomePage> items = [
+    ItemHomePage('Show Projects', Icons.folder, Colors.yellow),
+    ItemHomePage('Add a Project', Icons.add_circle, Colors.yellow),
     ItemHomePage('Show Experience', Icons.folder, Colors.blue),
     ItemHomePage('Add an Experience', Icons.add_circle, Colors.green),
     ItemHomePage('Show Awards', Icons.folder, Colors.purple),
@@ -124,12 +66,81 @@ class MyHomePage extends StatelessWidget {
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
+
+      drawer: const LeftDrawer(),
+
       // Body halaman utama dengan padding di sekelilingnya.
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+
+            const Text('This is Column:'),
+            Column(
+              children: [
+                const Text('mantap'),
+                const Text('gila kamu'),
+                const Icon(Icons.person)
+              ],
+            ),
+
+            const Text('This is Row:'),
+            Row(
+              mainAxisAlignment: .spaceEvenly,
+              children: [
+                const Icon(Icons.person_2),
+                const Icon(Icons.person_2_outlined),
+                const Icon(Icons.person_3_sharp),
+                const SizedBox(width: 5),
+                const Text('Burhan bruh'),
+                const Icon(Icons.edit),
+              ],
+            ),
+
+            const Text('This is Stack:'),
+            Stack(
+              alignment: .center,
+              children: [
+                Container(
+                  width: 200,
+                  height: 120,
+                  color: Colors.blue,
+                ),
+                const Text(
+                  'My Portfolio',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
+                const Text(
+                  'walawe',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
+
+            const Text('This is GridView:'),
+            GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 4,
+              children: [
+                Card(
+                  child: Text('Card 1'),
+                ),
+                Card(
+                  child: Text('Card 2'),
+                ),
+                Card(
+                  child: Text('Card 3'),
+                ),
+              ]
+            ),
+
             // Baris horizontal untuk menampilkan 3 InfoCard secara sejajar.
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -159,16 +170,14 @@ class MyHomePage extends StatelessWidget {
 
                   // GridView menampilkan kartu tombol dalam tata letak kisi 3 kolom.
                   GridView.count(
-                    primary: true,
-                    padding: const EdgeInsets.all(20),
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
                     crossAxisCount: 3,
                     // shrinkWrap agar ukuran kisi menyesuaikan tinggi konten anak.
                     shrinkWrap: true,
-                    children: items.map((ItemHomePage item) {
-                      return ItemCard(item);
-                    }).toList(),
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(20),
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    children: items.map((ItemHomePage item) => ItemCard(item)).toList(),
                   ),
                 ],
               ),
