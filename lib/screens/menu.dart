@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportfolio_mobile/widgets/left_drawer.dart';
-import 'package:myportfolio_mobile/widgets/project_card.dart';
+import 'package:myportfolio_mobile/widgets/page_card.dart';
 
 class InfoCard extends StatelessWidget {
   // kartu informasi yang menampilkan judul (title) dan isi (content)

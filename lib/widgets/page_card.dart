@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:myportfolio_mobile/screens/award_form.dart';
 import 'package:myportfolio_mobile/screens/project_form.dart';
 
 class ItemHomePage {
@@ -43,6 +44,13 @@ class ItemCard extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => const ProjectFormPage()
+              )
+            );
+          } else if (item.name == "Add an Award") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AwardFormPage()
               )
             );
           }
