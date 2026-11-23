@@ -76,6 +76,48 @@ class MyHomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
 
+            // Baris horizontal untuk menampilkan 3 InfoCard secara sejajar.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                InfoCard(title: 'NPM', content: npm),
+                InfoCard(title: 'Name', content: name),
+                InfoCard(title: 'Class', content: courseClass),
+              ],
+            ),
+
+            const SizedBox(height: 16.0),
+
+            // Bagian tengah: pesan sambutan dan kisi tombol menu portofolio.
+            Center(
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16.0),
+                    child: Text(
+                      'Welcome to My Portfolio Mobile!',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ),
+
+                  // GridView menampilkan kartu tombol dalam tata letak kisi 3 kolom.
+                  GridView.count(
+                    crossAxisCount: 3,
+                    // shrinkWrap agar ukuran kisi menyesuaikan tinggi konten anak.
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(20),
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    children: items.map((ItemHomePage item) => ItemCard(item)).toList(),
+                  ),
+                ],
+              ),
+            ),
+
             const Text('This is Column:'),
             Column(
               children: [
@@ -98,6 +140,7 @@ class MyHomePage extends StatelessWidget {
               ],
             ),
 
+            // === Learning Space ===
             const Text('This is Stack:'),
             Stack(
               alignment: .center,
@@ -140,48 +183,8 @@ class MyHomePage extends StatelessWidget {
                 ),
               ]
             ),
+            // === End of Learning Space ===
 
-            // Baris horizontal untuk menampilkan 3 InfoCard secara sejajar.
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                InfoCard(title: 'NPM', content: npm),
-                InfoCard(title: 'Name', content: name),
-                InfoCard(title: 'Class', content: courseClass),
-              ],
-            ),
-
-            const SizedBox(height: 16.0),
-
-            // Bagian tengah: pesan sambutan dan kisi tombol menu portofolio.
-            Center(
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 16.0),
-                    child: Text(
-                      'Welcome to My Portfolio Mobile!',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18.0,
-                      ),
-                    ),
-                  ),
-
-                  // GridView menampilkan kartu tombol dalam tata letak kisi 3 kolom.
-                  GridView.count(
-                    crossAxisCount: 3,
-                    // shrinkWrap agar ukuran kisi menyesuaikan tinggi konten anak.
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(20),
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    children: items.map((ItemHomePage item) => ItemCard(item)).toList(),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
