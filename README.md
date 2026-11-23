@@ -54,6 +54,36 @@ samples, guidance on mobile development, and a full API reference.
 
 6. *hot reload* digunakan untuk mempercepat pengembangan UI sambil mempertahankan state, *hot restart* digunakan untuk menjalankan ulang aplikasi pada level Dart dan menginisialisasi ulang state, sedangkan *full restart* diperlukan ketika aplikasi harus dihentikan dan dijalankan kembali, terutama setelah perubahan native atau konfigurasi build.
 
+### Tugas 8
+
+No. 1
+
+- `Navigator.push()` digunakan untuk membuka halaman baru dengan menambahkannya ke atas navigation stack, sehingga halaman sebelumnya tetap tersimpan dan dapat dikunjungi kembali.
+- `Navigator.pushReplacement()` digunakan untuk membuka halaman baru sekaligus menggantikan halaman yang sedang aktif pada navigation stack.
+- `Navigator.pop()` digunakan untuk menutup halaman atau route yang sedang aktif dan kembali ke halaman sebelumnya.
+- Kartu aksi Add a Project dan Add an Award menggunakan `Navigator.push()` dengan `MaterialPageRoute` untuk membuka `ProjectFormPage` dan `AwardFormPage`. Users dapat kembali ke halaman sebelumnya menggunakan tombol back.
+- Opsi Home pada `LeftDrawer` menggunakan `Navigator.pushReplacement()` untuk mengganti halaman yang sedang aktif dengan `MyHomePage`. Metode ini memastikan halaman yang ditinggalkan tidak tetap berada pada posisi teratas navigation stack.
+
+No. 2
+
+- `Scaffold` menyediakan kerangka dasar tampilan halaman flutter yang mengatur komponen seperti `AppBar`, `Drawer`, dan `body`. `AppBar` berfungsi menampilkan judul halaman dan navigasi bagian atas. `Drawer` menyediakan menu navigasi yang dapat digunakan untuk berpindah antarhalaman.
+- Pada project ini, `MyHomePage`, `ProjectFormPage`, dan `AwardFormPage` menggunakan struktur `Scaffold` yang serupa. Ketiganya juga menggunakan komponen `LeftDrawer` yang sama sehingga menu navigasi tetap konsisten dan tidak perlu ditulis ulang pada setiap halaman.
+- Contoh konsistensi tema adalah penggunaan `Colors.indigo` sebagai `backgroundColor` pada `AppBar` di halaman utama maupun kedua halaman forms. Warna yang sama juga digunakan pada `DrawerHeader` dan tombol Save. Selain itu, `MaterialApp` menggunakan `ColorScheme.fromSeed()` dengan `Colors.indigo` sebagai warna dasar tema aplikasi.
+
+No. 3
+
+- Pada `ProjectFormPage` dan `AwardFormPage`, form disusun menggunakan `Column` di dalam `SingleChildScrollView`. `Column` dipilih karena setiap komponen form, seperti `TextFormField`, `DropdownButtonFormField`, dan tombol Save, perlu ditampilkan secara vertikal agar mudah dibaca dan diisi secara berurutan.
+- Widget `Padding` digunakan untuk memberikan jarak di sekitar setiap input sebesar 8 piksel sehingga komponen form tidak saling berhimpitan. Selain itu, `Align` dengan `Alignment.bottomCenter` digunakan untuk mengatur posisi tombol Save agar berada di tengah secara horizontal pada bagian akhir form.
+- `SingleChildScrollView` digunakan agar halaman bisa di-scroll secara vertikal ketika tinggi keseluruhan form melebihi ruang layar yang tersedia, misalnya pada perangkat dengan layar kecil atau ketika keyboard muncul sehingga pengguna tetap dapat mengakses seluruh kolom input dan tombol Save tanpa mengalami masalah overflow.
+
+No. 4
+
+- `GlobalKey<FormState>` digunakan untuk identify dan mengakses state dari widget `Form`. Melalui `_formKey.currentState`, aplikasi dapat menjalankan validasi terhadap seluruh field yang terdaftar dalam form.
+- Properti `validator` digunakan untuk menentukan aturan validasi setiap input. Jika input tidak valid, fungsi mengembalikan pesan kesalahan. Sebaliknya, jika input valid, fungsi mengembalikan `null`.
+- Ketika tombol Save ditekan, aplikasi memanggil `_formKey.currentState!.validate()`. Method ini menjalankan seluruh fungsi validator dan return true jika semua input valid. Jika validasi berhasil, aplikasi menampilkan AlertDialog yang menyatakan bahwa data berhasil ditambahkan.
+- Contoh input yang ditolak adalah Project Name yang kosong atau hanya berisi spasi. Validasi menggunakan `value.trim().isEmpty` untuk mendeteksi kondisi tersebut dan menampilkan pesan `"Project name cannot be empty!"`.
+- Pemilihan jenis input atau papan ketik aja belum cukup untuk menjamin validitas data karena hanya membantu pengguna memasukkan data, bukan memastikan data memenuhi aturan yang ditentukan. Misalnya, papan ketik teks tetap memungkinkan pengguna memasukkan spasi tanpa karakter bermakna. Oleh karena itu, validasi tetap diperlukan untuk memastikan data yang dimasukkan sesuai dengan kebutuhan aplikasi.
+
 ## AI Disclosure
 
 ### Tugas 7
