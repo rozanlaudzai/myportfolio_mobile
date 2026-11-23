@@ -60,3 +60,8 @@ samples, guidance on mobile development, and a full API reference.
 
 I did not use AI at all.
 
+### Tugas 8
+
+- Chat link: https://chatgpt.com/share/6b046342-b558-83ec-a85a-5ea8060b449a
+- Helped to create `awarded_at` date time field in the award form
+
