@@ -64,7 +64,10 @@ class MyHomePage extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+        // backgroundColor: Theme.of(context).colorScheme.primary,
       ),
 
       drawer: const LeftDrawer(),
