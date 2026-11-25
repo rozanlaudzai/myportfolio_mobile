@@ -1,6 +1,8 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:myportfolio_mobile/services/auth_state.dart';
 import 'package:myportfolio_mobile/widgets/left_drawer.dart';
 import 'package:myportfolio_mobile/widgets/page_card.dart';
+import 'package:provider/provider.dart';
 
 class InfoCard extends StatelessWidget {
   // kartu informasi yang menampilkan judul (title) dan isi (content)
@@ -21,15 +23,12 @@ class InfoCard extends StatelessWidget {
         // menyusun teks title dan content secara vertikal
         child: Column(
           children: [
-            Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold)
-            ),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8.0),
-            Text(content)
-          ]
-        )
-      )
+            Text(content),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -48,21 +47,19 @@ class MyHomePage extends StatelessWidget {
     ItemHomePage('Add an Experience', Icons.add_circle, Colors.green),
     ItemHomePage('Show Awards', Icons.folder, Colors.purple),
     ItemHomePage('Add an Award', Icons.add_circle, Colors.brown),
-    ItemHomePage('Logout', Icons.logout, Colors.red)
+    ItemHomePage('Logout', Icons.logout, Colors.red),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final isLoggedIn = context.watch<AuthState>().isLoggedIn;
     // Scaffold menyediakan struktur visual dasar halaman (AppBar, Body, SnackBar).
     return Scaffold(
       // AppBar menampilkan bar bagian atas halaman aplikasi.
       appBar: AppBar(
         title: const Text(
           'My Portfolio',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
 
         backgroundColor: Colors.indigo,
@@ -78,7 +75,6 @@ class MyHomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-
             // Baris horizontal untuk menampilkan 3 InfoCard secara sejajar.
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -115,7 +111,10 @@ class MyHomePage extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
-                    children: items.map((ItemHomePage item) => ItemCard(item)).toList(),
+                    children: items
+                        .where((item) => item.name != 'Logout' || isLoggedIn)
+                        .map((ItemHomePage item) => ItemCard(item))
+                        .toList(),
                   ),
                 ],
               ),
@@ -126,7 +125,7 @@ class MyHomePage extends StatelessWidget {
               children: [
                 const Text('mantap'),
                 const Text('gila kamu'),
-                const Icon(Icons.person)
+                const Icon(Icons.person),
               ],
             ),
 
@@ -148,24 +147,14 @@ class MyHomePage extends StatelessWidget {
             Stack(
               alignment: .center,
               children: [
-                Container(
-                  width: 200,
-                  height: 120,
-                  color: Colors.blue,
-                ),
+                Container(width: 200, height: 120, color: Colors.blue),
                 const Text(
                   'My Portfolio',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
                 const Text(
                   'walawe',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 20,
-                  ),
+                  style: TextStyle(color: Colors.red, fontSize: 20),
                 ),
               ],
             ),
@@ -175,19 +164,13 @@ class MyHomePage extends StatelessWidget {
               shrinkWrap: true,
               crossAxisCount: 4,
               children: [
-                Card(
-                  child: Text('Card 1'),
-                ),
-                Card(
-                  child: Text('Card 2'),
-                ),
-                Card(
-                  child: Text('Card 3'),
-                ),
-              ]
+                Card(child: Text('Card 1')),
+                Card(child: Text('Card 2')),
+                Card(child: Text('Card 3')),
+              ],
             ),
-            // === End of Learning Space ===
 
+            // === End of Learning Space ===
           ],
         ),
       ),

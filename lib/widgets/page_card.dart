@@ -1,6 +1,8 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:myportfolio_mobile/screens/award_form.dart';
 import 'package:myportfolio_mobile/screens/project_form.dart';
+import 'package:myportfolio_mobile/screens/project_list_screen.dart';
+import 'package:myportfolio_mobile/widgets/auth_guard.dart';
 
 class ItemHomePage {
   final String name;
@@ -29,30 +31,28 @@ class ItemCard extends StatelessWidget {
           }
           return null;
         }),
-        // aksi ketika kartu ditekan oleh pengguna
-        onTap: () {
-          // menampilkan SnackBar dengan pesan interaktif
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(content: Text('You pressed button ${item.name}!'))
-            );
-          
-          // Navigate ke halaman yang sesuai
-          if (item.name == "Add a Project") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ProjectFormPage()
-              )
-            );
-          } else if (item.name == "Add an Award") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AwardFormPage()
-              )
-            );
+        onTap: () async {
+          final Widget? page = switch (item.name) {
+            'Show Projects' => const ProjectListScreen(),
+            'Add a Project' => const ProjectFormPage(),
+            'Add an Award' => const AwardFormPage(),
+            _ => null,
+          };
+          if (item.name == 'Logout') {
+            await signOut(context);
+          } else if (page != null) {
+            if (page is! ProjectListScreen && !await ensureLoggedIn(context)) {
+              return;
+            }
+            if (!context.mounted) return;
+            await Navigator.of(context)
+                .push<void>(MaterialPageRoute(builder: (_) => page));
+          } else {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(content: Text('You pressed button ${item.name}!')),
+              );
           }
         },
         child: Padding(
@@ -61,22 +61,18 @@ class ItemCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  item.icon,
-                  color: Colors.white,
-                  size: 30.0
-                ),
+                Icon(item.icon, color: Colors.white, size: 30.0),
                 const Padding(padding: EdgeInsets.all(3)),
                 Text(
                   item.name,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white)
-                )
+                  style: const TextStyle(color: Colors.white),
+                ),
               ],
-            )
-          )
-        )
-      )
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

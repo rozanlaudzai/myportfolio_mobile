@@ -1,82 +1,86 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:myportfolio_mobile/screens/award_form.dart';
-import 'package:myportfolio_mobile/screens/menu.dart';
 import 'package:myportfolio_mobile/screens/project_form.dart';
+import 'package:myportfolio_mobile/screens/project_list_screen.dart';
+import 'package:myportfolio_mobile/services/auth_state.dart';
+import 'package:myportfolio_mobile/widgets/auth_guard.dart';
+import 'package:provider/provider.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isLoggedIn = context.watch<AuthState>().isLoggedIn;
     return Drawer(
       child: ListView(
         children: [
           const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.indigo,
-            ),
-            child: Column(
-              crossAxisAlignment: .start,
-              children: [
-                Text(
-                  'My Portfolio',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: .bold,
-                    color: Colors.white
-                  )
+            decoration: BoxDecoration(color: Colors.indigo),
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                'My Portfolio',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                SizedBox(height: 10),
-                Text(
-                  'Explore personal projects, awards, and experience!',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.white
-                  ),
-                )
-              ],
+              ),
             ),
           ),
           ListTile(
             leading: const Icon(Icons.home_outlined),
             title: const Text('Home'),
-            // Navigasi ke halaman utama portfolio
             onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MyHomePage()
-                )
-              );
+              final navigator = Navigator.of(context);
+              navigator.pop();
+              navigator.popUntil((route) => route.isFirst);
             },
+          ),
+          ListTile(
+            leading: const Icon(Icons.folder_outlined),
+            title: const Text('Projects'),
+            onTap: () => _open(context, const ProjectListScreen()),
           ),
           ListTile(
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('Add Project'),
-            // Navigasi ke halaman utama Project
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProjectFormPage()
-                )
-              );
-            },
+            onTap: () => _open(context, const ProjectFormPage(), guarded: true),
           ),
           ListTile(
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('Add Award'),
+            onTap: () => _open(context, const AwardFormPage(), guarded: true),
+          ),
+          ListTile(
+            leading: Icon(isLoggedIn ? Icons.logout : Icons.login),
+            title: Text(isLoggedIn ? 'Logout' : 'Login'),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AwardFormPage()
-                )
-              );
+              final routeContext = ModalRoute.of(context)!.subtreeContext!;
+              Navigator.pop(context);
+              if (isLoggedIn) {
+                signOut(routeContext);
+              } else {
+                ensureLoggedIn(routeContext);
+              }
             },
-          )
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _open(
+    BuildContext context,
+    Widget page, {
+    bool guarded = false,
+  }) async {
+    final routeContext = ModalRoute.of(context)!.subtreeContext!;
+    Navigator.pop(context);
+    if (guarded && !await ensureLoggedIn(routeContext)) return;
+    if (!routeContext.mounted) return;
+    await Navigator.of(routeContext)
+        .push<void>(MaterialPageRoute(builder: (_) => page));
   }
 }

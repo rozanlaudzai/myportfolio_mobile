@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:myportfolio_mobile/widgets/left_drawer.dart';
 
 class AwardFormPage extends StatefulWidget {
@@ -11,18 +11,13 @@ class AwardFormPage extends StatefulWidget {
 class _AwardFormPageState extends State<AwardFormPage> {
   final _formKey = GlobalKey<FormState>();
 
-  String _awardTitle = '';
-  String _issuer = '';
-  String _description = '';
   DateTime? _awardedAt;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(
-          child: Text('Add Award Form'),
-        ),
+        title: const Center(child: Text('Add Award Form')),
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
       ),
@@ -42,15 +37,8 @@ class _AwardFormPageState extends State<AwardFormPage> {
                   decoration: InputDecoration(
                     hintText: 'Award Title',
                     labelText: 'Award Title',
-                    border: OutlineInputBorder(
-                      borderRadius: .circular(5.0)
-                    )
+                    border: OutlineInputBorder(borderRadius: .circular(5.0)),
                   ),
-                  onChanged: (String? value) {
-                    setState(() {
-                      _awardTitle = value!;
-                    });
-                  },
                   validator: (String? value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Award title cannot be empty!';
@@ -68,15 +56,8 @@ class _AwardFormPageState extends State<AwardFormPage> {
                   decoration: InputDecoration(
                     hintText: 'Award Issuer',
                     labelText: 'Award Issuer',
-                    border: OutlineInputBorder(
-                      borderRadius: .circular(5.0)
-                    )
+                    border: OutlineInputBorder(borderRadius: .circular(5.0)),
                   ),
-                  onChanged: (String? value) {
-                    setState(() {
-                      _issuer = value!;
-                    });
-                  },
                   validator: (String? value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Award issuer cannot be empty!';
@@ -94,15 +75,8 @@ class _AwardFormPageState extends State<AwardFormPage> {
                   decoration: InputDecoration(
                     hintText: 'Award Description',
                     labelText: 'Award Description',
-                    border: OutlineInputBorder(
-                      borderRadius: .circular(5.0)
-                    )
+                    border: OutlineInputBorder(borderRadius: .circular(5.0)),
                   ),
-                  onChanged: (String? value) {
-                    setState(() {
-                      _description = value!;
-                    });
-                  },
                   validator: (String? value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Award description cannot be empty!';
@@ -144,15 +118,15 @@ class _AwardFormPageState extends State<AwardFormPage> {
                         decoration: InputDecoration(
                           labelText: 'Awarded At',
                           border: OutlineInputBorder(
-                            borderRadius: .circular(5.0)
+                            borderRadius: .circular(5.0),
                           ),
                           errorText: field.errorText,
                           suffixIcon: const Icon(Icons.calendar_today),
                         ),
                         child: Text(
                           _awardedAt == null
-                            ? 'Select award date'
-                            : '${_awardedAt!.day}/${_awardedAt!.month}/${_awardedAt!.year}',
+                              ? 'Select award date'
+                              : '${_awardedAt!.day}/${_awardedAt!.month}/${_awardedAt!.year}',
                         ),
                       ),
                     );
@@ -167,7 +141,7 @@ class _AwardFormPageState extends State<AwardFormPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.indigo)
+                      backgroundColor: WidgetStateProperty.all(Colors.indigo),
                     ),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
@@ -175,7 +149,9 @@ class _AwardFormPageState extends State<AwardFormPage> {
                           context: context,
                           builder: (context) {
                             return AlertDialog(
-                              title: const Text('Award has been successfully added!'),
+                              title: const Text(
+                                'Award has been successfully added!',
+                              ),
                               actions: [
                                 TextButton(
                                   child: const Text('OK'),
@@ -183,10 +159,10 @@ class _AwardFormPageState extends State<AwardFormPage> {
                                     Navigator.pop(context);
                                     _formKey.currentState!.reset();
                                   },
-                                )
+                                ),
                               ],
                             );
-                          }
+                          },
                         );
                       }
                     },
@@ -196,12 +172,11 @@ class _AwardFormPageState extends State<AwardFormPage> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
       ),
     );
   }
-
 }
