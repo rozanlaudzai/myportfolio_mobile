@@ -16,6 +16,33 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+## Run against Django on Windows
+
+From the Django repository, with its virtual environment active:
+
+```powershell
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+From this Flutter repository:
+
+```powershell
+flutter pub get
+dart run build_runner build
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8000
+```
+
+For the Android emulator, run `flutter run` to use the default API address,
+`http://10.0.2.2:8000`. Anyone can browse projects. Sign in with a Django
+superuser account to add one.
+
+The GitHub Actions workflow builds and uploads `app-release-apk` after CI passes.
+Set the repository's Actions variable `API_BASE_URL` to an HTTPS Django origin
+to target a deployed backend. If the variable is empty, the APK uses the
+emulator address.
+
 ## Pertanyaan Reflektif
 
 ### Tugas 7
