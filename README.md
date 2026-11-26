@@ -1,5 +1,7 @@
 # myportfolio_mobile
 
+[![CI](https://github.com/rozanlaudzai/myportfolio_mobile/actions/workflows/main.yaml/badge.svg?branch=main)](https://github.com/rozanlaudzai/myportfolio_mobile/actions/workflows/main.yaml)
+
 A new Flutter project.
 
 ## Getting Started
@@ -37,6 +39,32 @@ flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8000
 For the Android emulator, run `flutter run` to use the default API address,
 `http://10.0.2.2:8000`. Anyone can browse projects. Sign in with a Django
 superuser account to add one.
+
+## Assignment 9 setup
+
+- [Django backend repository](https://github.com/rozanlaudzai/myportfolio)
+- [Deployed Awards API](https://rozan-laudzai-myportfolio.pws.cs.ui.ac.id/api/v1/awards/)
+
+For local development, use the Django revision with token authentication for
+Awards and follow the Windows setup above. In Flutter, open **Show Awards**
+or **Awards** in the drawer to browse and open an entry without signing in.
+Use **Add award** and sign in as a Django superuser to save. The list reloads
+after saving. The [Django Awards page](https://rozan-laudzai-myportfolio.pws.cs.ui.ac.id/awards/)
+uses the same records on the deployed backend. For local verification, open
+the Awards page at `http://localhost:8000/awards/`.
+
+To run against the deployed API from Android, deploy the matching Django revision
+and pass its origin to Flutter:
+
+```powershell
+flutter run --dart-define=API_BASE_URL=https://rozan-laudzai-myportfolio.pws.cs.ui.ac.id
+```
+
+For a Flutter Web client talking to a production Django instance, configure
+`CORS_ALLOWED_ORIGINS` on Django with that client's origin. To check session
+expiry locally, revoke the signed-in user's DRF token in Django Admin, then
+save an award in Flutter. Sign in again and press **Save** to retry the
+preserved draft.
 
 The GitHub Actions workflow builds and uploads `app-release-apk` after CI passes.
 Set the repository's Actions variable `API_BASE_URL` to an HTTPS Django origin
@@ -111,6 +139,13 @@ No. 4
 - Contoh input yang ditolak adalah Project Name yang kosong atau hanya berisi spasi. Validasi menggunakan `value.trim().isEmpty` untuk mendeteksi kondisi tersebut dan menampilkan pesan `"Project name cannot be empty!"`.
 - Pemilihan jenis input atau papan ketik aja belum cukup untuk menjamin validitas data karena hanya membantu pengguna memasukkan data, bukan memastikan data memenuhi aturan yang ditentukan. Misalnya, papan ketik teks tetap memungkinkan pengguna memasukkan spasi tanpa karakter bermakna. Oleh karena itu, validasi tetap diperlukan untuk memastikan data yang dimasukkan sesuai dengan kebutuhan aplikasi.
 
+### Assignment 9
+
+1. `@JsonSerializable(fieldRename: FieldRename.snake)` memusatkan pemetaan antara properti Dart dan kontrak JSON DRF. Widget cukup membangun objek `Award`, lalu `ApiClient` memakai `toJson()` untuk membuat payload. Jika widget merakit map sendiri dan mengirim `awardedAt`, DRF akan menganggap `awarded_at` belum diisi dan menolak POST dengan HTTP 400. `@JsonKey(includeToJson: false)` tetap mengizinkan aplikasi membaca UUID dan metadata bintang dari respons, sambil mengeluarkan field tersebut dari payload tulis karena nilainya ditetapkan server.
+2. `initState()` membuat satu Future ketika layar dibuka. `build()` dapat dipanggil kembali saat tema, ukuran layar, atau state berubah. Membuat Future di sana dapat memicu GET tambahan dan mengulang indikator loading. Tombol Retry, pull-to-refresh, dan penyimpanan award yang sukses mengganti Future secara eksplisit. `ApiException` mempertahankan kode HTTP sehingga UI dapat membedakan respons 401, 403, dan kegagalan server. Jika klien mengembalikan `null`, UI kehilangan kode itu dan berisiko menampilkan kegagalan sebagai daftar kosong.
+3. `SessionAuthentication` membaca cookie sesi Django. Browser mengirim cookie secara otomatis dan DRF memeriksa token CSRF untuk operasi tulis yang memakai sesi. Flutter menukar kredensial dengan token DRF, menyimpannya di memori, dan mengirimnya secara eksplisit lewat `Authorization: Token <key>`. Logout mencabut token di Django. Backend tetap mengaktifkan autentikasi sesi agar halaman Django dan klien web yang sudah memakai cookie serta CSRF dapat mengakses API yang sama. Izin backend tetap menentukan apakah pengguna yang terautentikasi boleh membuat award.
+4. Job `build` memakai workflow Very Good Open Source untuk memasang Flutter dan dependensi, menjalankan tahap setup yang menghasilkan kode JSON, memeriksa format Dart, menjalankan analisis statis, serta menjalankan pengujian dengan laporan cakupan. Ambang cakupan proyek adalah 0 persen dan tes tetap berjalan. Setelah `build` lulus, `build_apk` menyiapkan Java dan Flutter, memasang dependensi, mengulang code generation pada runner terpisah, membangun APK release, lalu mengunggah `app-release-apk`. Berkas `*.g.dart` diabaikan Git agar model Dart dan konfigurasi generator menjadi sumber kode. Setiap runner membuat ulang berkas itu sebelum analisis atau build sehingga hasil lama tidak tercecer di riwayat commit.
+
 ## AI Disclosure
 
 ### Tugas 7
@@ -122,3 +157,15 @@ I did not use AI at all.
 - Chat link: https://chatgpt.com/share/6b046342-b558-83ec-a85a-5ea8060b449a
 - Helped to create `awarded_at` date time field in the award form
 
+### Assignment 9
+
+Saya menggunakan OpenAI Codex melalui Codex Desktop. Prompt berisi teks tugas,
+struktur kedua repositori, stack, dan batasan perubahan Git. Codex memeriksa
+serializer dan izin Django yang sudah ada, membantu mengintegrasikan Awards
+di Flutter, menulis tes, dan menyusun dokumentasi termasuk draf jawaban reflektif.
+
+Saran kode diperiksa terhadap payload `AwardSerializer` dan diuji secara lokal.
+Contohnya, tanggal dipertahankan dalam format `YYYY-MM-DD`, sementara UUID dan
+metadata bintang hanya dibaca dari respons. Tes memeriksa respons 401 dan
+memastikan draf tetap tersedia setelah login ulang. Pengujian lokal tidak
+membuktikan status workflow pada commit yang belum diterbitkan ke GitHub.
