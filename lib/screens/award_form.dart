@@ -1,5 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:myportfolio_mobile/widgets/left_drawer.dart';
+import 'package:myportfolio_mobile/models/award.dart';
+import 'package:myportfolio_mobile/services/api_client.dart';
+import 'package:myportfolio_mobile/services/auth_state.dart';
+import 'package:myportfolio_mobile/widgets/auth_guard.dart';
+import 'package:provider/provider.dart';
+
+Future<bool> openAwardForm(BuildContext context) async {
+  if (!await ensureLoggedIn(context) || !context.mounted) return false;
+  return await Navigator.of(
+        context,
+      ).push<bool>(MaterialPageRoute(builder: (_) => const AwardFormPage())) ??
+      false;
+}
 
 class AwardFormPage extends StatefulWidget {
   const AwardFormPage({super.key});
@@ -10,170 +22,167 @@ class AwardFormPage extends StatefulWidget {
 
 class _AwardFormPageState extends State<AwardFormPage> {
   final _formKey = GlobalKey<FormState>();
-
+  String _title = '';
+  String _issuer = '';
+  String _description = '';
   DateTime? _awardedAt;
+  bool _saving = false;
+
+  Future<void> _save() async {
+    if (_saving || !_formKey.currentState!.validate()) return;
+    _formKey.currentState!.save();
+    final auth = context.read<AuthState>();
+    final api = context.read<ApiClient>();
+    setState(() => _saving = true);
+    try {
+      if (!await ensureLoggedIn(context) || !mounted) return;
+      final token = auth.token;
+      if (token == null) return;
+      final award = await api.createAward(
+        Award(
+          title: _title,
+          issuer: _issuer,
+          description: _description,
+          awardedAt: _awardedAt!.toIso8601String().split('T').first,
+        ),
+        token: token,
+      );
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Award added'),
+          content: Text(award.title),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      if (mounted) Navigator.pop(context, true);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      if (error.statusCode == 401) {
+        await signOut(context);
+        if (!mounted) return;
+        _showError('Your session expired. Log in and save again.');
+        await ensureLoggedIn(context);
+      } else {
+        _showError(switch (error.statusCode) {
+          400 => 'Django rejected the award details. Check your entries.',
+          403 => 'Only the portfolio owner can add awards.',
+          _ => 'Could not save the award (HTTP ${error.statusCode}).',
+        });
+      }
+    } on Exception {
+      if (mounted) _showError('Could not contact the server.');
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Widget _textField(
+    String label,
+    ValueChanged<String> save, {
+    int lines = 1,
+    int? maxLength,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        enabled: !_saving,
+        maxLines: lines,
+        maxLength: maxLength,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+        validator: (value) => value == null || value.trim().isEmpty
+            ? 'This field is required.'
+            : null,
+        onSaved: (value) => save(value!.trim()),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Center(child: Text('Add Award Form')),
-        backgroundColor: Colors.indigo,
-        foregroundColor: Colors.white,
-      ),
-
-      drawer: const LeftDrawer(),
-
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: .start,
-            children: [
-              // === Award Title ===
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Award Title',
-                    labelText: 'Award Title',
-                    border: OutlineInputBorder(borderRadius: .circular(5.0)),
-                  ),
-                  validator: (String? value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Award title cannot be empty!';
-                    }
-                    return null;
-                  },
+    return PopScope(
+      canPop: !_saving,
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Add Award')),
+        body: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _textField(
+                  'Award Title',
+                  (value) => _title = value,
+                  maxLength: 255,
                 ),
-              ),
-
-              // === Issuer ===
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    hintText: 'Award Issuer',
-                    labelText: 'Award Issuer',
-                    border: OutlineInputBorder(borderRadius: .circular(5.0)),
-                  ),
-                  validator: (String? value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Award issuer cannot be empty!';
-                    }
-                    return null;
-                  },
+                _textField(
+                  'Award Issuer',
+                  (value) => _issuer = value,
+                  maxLength: 255,
                 ),
-              ),
-
-              // === Description ===
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    hintText: 'Award Description',
-                    labelText: 'Award Description',
-                    border: OutlineInputBorder(borderRadius: .circular(5.0)),
-                  ),
-                  validator: (String? value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Award description cannot be empty!';
-                    }
-                    return null;
-                  },
+                _textField(
+                  'Award Description',
+                  (value) => _description = value,
+                  lines: 4,
                 ),
-              ),
-
-              // === Awarded At ===
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: FormField<DateTime>(
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Date time cannot be empty!';
-                    }
-                    return null;
-                  },
-                  builder: (FormFieldState<DateTime> field) {
-                    return InkWell(
-                      onTap: () async {
-                        final DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: _awardedAt ?? DateTime.now(),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime.now(),
-                        );
-
-                        if (picked != null) {
-                          setState(() {
-                            _awardedAt = picked;
-                          });
-
-                          field.didChange(picked);
-                        }
-                      },
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: 'Awarded At',
-                          border: OutlineInputBorder(
-                            borderRadius: .circular(5.0),
-                          ),
-                          errorText: field.errorText,
-                          suffixIcon: const Icon(Icons.calendar_today),
-                        ),
-                        child: Text(
-                          _awardedAt == null
-                              ? 'Select award date'
-                              : '${_awardedAt!.day}/${_awardedAt!.month}/${_awardedAt!.year}',
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              // === Save Button ===
-              Align(
-                alignment: .bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.indigo),
-                    ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text(
-                                'Award has been successfully added!',
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _formKey.currentState!.reset();
-                                  },
-                                ),
-                              ],
+                FormField<DateTime>(
+                  onSaved: (value) => _awardedAt = value,
+                  validator: (value) =>
+                      value == null ? 'Select an award date.' : null,
+                  builder: (field) => InkWell(
+                    onTap: _saving
+                        ? null
+                        : () async {
+                            final today = DateUtils.dateOnly(DateTime.now());
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: field.value ?? today,
+                              firstDate: DateTime(1900),
+                              lastDate: today,
                             );
+                            if (field.mounted && picked != null) {
+                              field.didChange(picked);
+                            }
                           },
-                        );
-                      }
-                    },
-                    child: const Text(
-                      'Save',
-                      style: TextStyle(color: Colors.white),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: 'Awarded At',
+                        border: const OutlineInputBorder(),
+                        errorText: field.errorText,
+                        suffixIcon: const Icon(Icons.calendar_today),
+                      ),
+                      child: Text(
+                        field.value == null
+                            ? 'Select award date'
+                            : MaterialLocalizations.of(context)
+                                  .formatMediumDate(field.value!),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _saving ? null : _save,
+                  child: Text(_saving ? 'Saving…' : 'Save'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myportfolio_mobile/screens/award_form.dart';
+import 'package:myportfolio_mobile/screens/award_list_screen.dart';
 import 'package:myportfolio_mobile/screens/project_form.dart';
 import 'package:myportfolio_mobile/screens/project_list_screen.dart';
 import 'package:myportfolio_mobile/widgets/auth_guard.dart';
@@ -35,13 +36,19 @@ class ItemCard extends StatelessWidget {
           final Widget? page = switch (item.name) {
             'Show Projects' => const ProjectListScreen(),
             'Add a Project' => const ProjectFormPage(),
-            'Add an Award' => const AwardFormPage(),
+            'Show Awards' => const AwardListScreen(),
             _ => null,
           };
           if (item.name == 'Logout') {
             await signOut(context);
+          } else if (item.name == 'Add an Award') {
+            if (await openAwardForm(context) && context.mounted) {
+              await Navigator.of(context).push<void>(
+                MaterialPageRoute(builder: (_) => const AwardListScreen()),
+              );
+            }
           } else if (page != null) {
-            if (page is! ProjectListScreen && !await ensureLoggedIn(context)) {
+            if (page is ProjectFormPage && !await ensureLoggedIn(context)) {
               return;
             }
             if (!context.mounted) return;

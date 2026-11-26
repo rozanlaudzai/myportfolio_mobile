@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:myportfolio_mobile/config.dart';
+import 'package:myportfolio_mobile/models/award.dart';
 import 'package:myportfolio_mobile/models/project.dart';
 
 class ApiException implements Exception {
@@ -23,16 +24,31 @@ class ApiClient {
 
   Uri _uri(String path) => Uri.parse(baseUrl).resolve('/api/v1/$path');
 
-  Future<List<Project>> getProjects() async {
+  Future<List<Project>> getProjects() =>
+      _getList('projects/', Project.fromJson);
+
+  Future<List<Award>> getAwards() => _getList('awards/', Award.fromJson);
+
+  Future<List<T>> _getList<T>(
+    String path,
+    T Function(Map<String, dynamic>) fromJson,
+  ) async {
     final response = await _client.get(
-      _uri('projects/'),
+      _uri(path),
       headers: const {'Accept': 'application/json'},
     );
     _ensureSuccess(response);
-    final projects = jsonDecode(utf8.decode(response.bodyBytes)) as List;
-    return projects
-        .map((item) => Project.fromJson(item as Map<String, dynamic>))
+    final records = jsonDecode(utf8.decode(response.bodyBytes)) as List;
+    return records
+        .map((item) => fromJson(item as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<Award> createAward(Award award, {required String token}) async {
+    final response = await _post('awards/', data: award.toJson(), token: token);
+    return Award.fromJson(
+      jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>,
+    );
   }
 
   Future<Project> createProject(

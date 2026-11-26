@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myportfolio_mobile/screens/award_form.dart';
+import 'package:myportfolio_mobile/screens/award_list_screen.dart';
 import 'package:myportfolio_mobile/screens/project_form.dart';
 import 'package:myportfolio_mobile/screens/project_list_screen.dart';
 import 'package:myportfolio_mobile/services/auth_state.dart';
@@ -7,7 +8,9 @@ import 'package:myportfolio_mobile/widgets/auth_guard.dart';
 import 'package:provider/provider.dart';
 
 class LeftDrawer extends StatelessWidget {
-  const LeftDrawer({super.key});
+  const LeftDrawer({super.key, this.onAwardCreated});
+
+  final Future<void> Function()? onAwardCreated;
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +52,28 @@ class LeftDrawer extends StatelessWidget {
             onTap: () => _open(context, const ProjectFormPage(), guarded: true),
           ),
           ListTile(
+            leading: const Icon(Icons.folder_outlined),
+            title: const Text('Awards'),
+            onTap: () => _open(context, const AwardListScreen()),
+          ),
+          ListTile(
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('Add Award'),
-            onTap: () => _open(context, const AwardFormPage(), guarded: true),
+            onTap: () async {
+              final routeContext = ModalRoute.of(context)!.subtreeContext!;
+              Navigator.pop(context);
+              if (!await openAwardForm(routeContext) || !routeContext.mounted) {
+                return;
+              }
+              final refresh = onAwardCreated;
+              if (refresh != null) {
+                await refresh();
+              } else {
+                await Navigator.of(routeContext).push<void>(
+                  MaterialPageRoute(builder: (_) => const AwardListScreen()),
+                );
+              }
+            },
           ),
           ListTile(
             leading: Icon(isLoggedIn ? Icons.logout : Icons.login),
