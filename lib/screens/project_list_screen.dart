@@ -23,7 +23,9 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
 
   Future<void> _reload() async {
     final request = context.read<ApiClient>().getProjects();
-    setState(() => _projects = request);
+    setState(() {
+      _projects = request;
+    });
     try {
       await request;
     } catch (_) {
