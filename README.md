@@ -159,4 +159,4 @@ I did not use AI at all.
 
 ### Tugas 9
 
-- Memeriksa serializer dan izin Django yang sudah ada, membantu mengintegrasikan Awards di Flutter, menulis tes, dan menyusun dokumentasi termasuk draf jawaban reflektif.
+- Memeriksa serializer dan aturan akses API Awards Django yang sudah ada, membantu mengintegrasikan Awards di Flutter, dan menulis unit tests.
