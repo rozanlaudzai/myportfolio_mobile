@@ -139,7 +139,7 @@ No. 4
 - Contoh input yang ditolak adalah Project Name yang kosong atau hanya berisi spasi. Validasi menggunakan `value.trim().isEmpty` untuk mendeteksi kondisi tersebut dan menampilkan pesan `"Project name cannot be empty!"`.
 - Pemilihan jenis input atau papan ketik aja belum cukup untuk menjamin validitas data karena hanya membantu pengguna memasukkan data, bukan memastikan data memenuhi aturan yang ditentukan. Misalnya, papan ketik teks tetap memungkinkan pengguna memasukkan spasi tanpa karakter bermakna. Oleh karena itu, validasi tetap diperlukan untuk memastikan data yang dimasukkan sesuai dengan kebutuhan aplikasi.
 
-### Assignment 9
+### Tugas 9
 
 1. `@JsonSerializable(fieldRename: FieldRename.snake)` mengubah nama field Dart ke format JSON yang dipakai DRF. Contohnya, `awardedAt` dikirim sebagai `awarded_at`, sehingga POST tidak gagal dengan HTTP 400 karena nama field yang salah. `@JsonKey(includeToJson: false)` membuat ID tetap bisa dibaca dari respons tanpa ikut dikirim saat POST.
 2. Future dibuat di `initState()` agar GET hanya berjalan sekali saat layar dibuka. Jika Future dibuat di `build()`, GET bisa terulang setiap kali UI diperbarui. `ApiException` membawa kode HTTP, jadi aplikasi bisa membedakan sesi kedaluwarsa (401), akses ditolak (403), dan daftar yang memang kosong.
@@ -157,15 +157,6 @@ I did not use AI at all.
 - Chat link: https://chatgpt.com/share/6b046342-b558-83ec-a85a-5ea8060b449a
 - Helped to create `awarded_at` date time field in the award form
 
-### Assignment 9
+### Tugas 9
 
-Saya menggunakan OpenAI Codex melalui Codex Desktop. Prompt berisi teks tugas,
-struktur kedua repositori, stack, dan batasan perubahan Git. Codex memeriksa
-serializer dan izin Django yang sudah ada, membantu mengintegrasikan Awards
-di Flutter, menulis tes, dan menyusun dokumentasi termasuk draf jawaban reflektif.
-
-Saran kode diperiksa terhadap payload `AwardSerializer` dan diuji secara lokal.
-Contohnya, tanggal dipertahankan dalam format `YYYY-MM-DD`, sementara UUID dan
-metadata bintang hanya dibaca dari respons. Tes memeriksa respons 401 dan
-memastikan draf tetap tersedia setelah login ulang. Pengujian lokal tidak
-membuktikan status workflow pada commit yang belum diterbitkan ke GitHub.
+- Memeriksa serializer dan izin Django yang sudah ada, membantu mengintegrasikan Awards di Flutter, menulis tes, dan menyusun dokumentasi termasuk draf jawaban reflektif.
